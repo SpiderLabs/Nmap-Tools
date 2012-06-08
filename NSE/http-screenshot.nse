@@ -1,4 +1,4 @@
--- Copyright (C) 2011 Trustwave
+-- Copyright (C) 2012 Trustwave
 -- http://www.trustwave.com
 -- 
 -- This program is free software; you can redistribute it and/or modify
