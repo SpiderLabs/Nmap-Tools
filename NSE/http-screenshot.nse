@@ -25,6 +25,7 @@ license = "GPLv2"
 
 categories = {"discovery", "safe"}
 
+-- Updated the NSE Script imports and variable declarations
 local shortport = require "shortport"
 
 local stdnse = require "stdnse"
