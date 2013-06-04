@@ -25,7 +25,10 @@ license = "GPLv2"
 
 categories = {"discovery", "safe"}
 
-require "shortport"
+-- Updated the NSE Script imports and variable declarations
+local shortport = require "shortport"
+
+local stdnse = require "stdnse"
 
 portrule = shortport.http
 
@@ -47,12 +50,12 @@ action = function(host, port)
 	-- Execute the shell command wkhtmltoimage-i386 <url> <filename>
 	local cmd = "wkhtmltoimage-i386 -n " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
 	
-	ret = os.execute(cmd)
+	local ret = os.execute(cmd)
 
 	-- If the command was successful, print the saved message, otherwise print the fail message
 	local result = "failed (verify wkhtmltoimage-i386 is in your path)"
 
-	if ret == 0 then
+	if ret then
 		result = "Saved to " .. filename
 	end
 
@@ -60,5 +63,3 @@ action = function(host, port)
 	return stdnse.format_output(true,  result)
 
 end
-
-
