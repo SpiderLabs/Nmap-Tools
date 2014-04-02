@@ -53,11 +53,17 @@ end
 
 
 action = function(host, port)
-	-- Check to see if ssl is enabled, if it is, this will be set to "ssl"
-	local ssl = port.version.service_tunnel
-
-	-- The default URLs will start with http://
+	-- HTTP/HTTPS service names
+	local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
+	              ssl = { ["https"] = 1, ["https-alt"] = 1 }
+	            }
+	
+	-- Set prefix... Check to see if ssl is enabled, if it is, set prefix to "https", otherwise leave at "http"
 	local prefix = "http"
+	
+	if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl') then
+	   	prefix = "https"	
+	end
 
 	-- format defaults to jpg
 	local format = stdnse.get_script_args("http-screenshot.format") or "jpg"
@@ -71,11 +77,6 @@ action = function(host, port)
 	-- Screenshots will be called screenshot-namp-<IP>:<port>.<format>
     local filename = "screenshot-nmap-" .. host.ip .. "_" .. port.number .. "." .. format
 	
-	-- If SSL is set on the port, switch the prefix to https
-	if ssl == "ssl" then
-		prefix = "https"	
-	end
-
 	-- Execute the shell command wkhtmltoimage <url> <filename>
 	stdnse.print_verbose("http-screenshot.nse: Capturing screenshot for %s",prefix .. "://" .. host.ip .. ":" .. port.number)
 	local cmd = "wkhtmltoimage -n --format " .. format .. " --quality " .. quality .. " " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
@@ -83,7 +84,7 @@ action = function(host, port)
 	local ret = os.execute(cmd)
 
 	-- append to the index html page
-	local cmd2 = 'echo "' .. filename .. ':<BR><IMG SRC=' .. filename .. ' width=400 border=1><BR><BR>" >> ' .. indexpage
+	local cmd2 = 'echo "' .. filename .. ':<BR><A HREF=' .. filename .. ' TARGET=_blank><IMG SRC=' .. filename .. ' width=400 border=1></A><BR><BR>" >> ' .. indexpage
 	local ret2 = os.execute(cmd2)
 
 	-- If the command was successful, print the saved message, otherwise print the fail message
