@@ -1,3 +1,8 @@
+-- Modified by Travis Lee, 10/21/2014
+--  Changed to add option to capture with hostname instead of IP
+--  script-args:
+--    http-screenshot.usehostname = 1 (default is 0, capture by IP)
+
 -- Modified by Travis Lee, 3/20/2014
 --  Changed wkhtmltoimage-i386 to wkhtmltoimage to reflect the new name in new versions
 --  Added ability to take script args to adjust format type and quality level.
@@ -64,6 +69,16 @@ action = function(host, port)
 	if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl') then
 	   	prefix = "https"	
 	end
+	
+	-- Check if the use hostname option is set. If so, set target to hostname instead of ip
+	local usehostname = stdnse.get_script_args("http-screenshot.usehostname")
+	local target = host.ip
+	
+	if usehostname then
+		if host.name then
+			target = host.name
+		end
+	end
 
 	-- format defaults to jpg
 	local format = stdnse.get_script_args("http-screenshot.format") or "jpg"
@@ -75,11 +90,11 @@ action = function(host, port)
 	local indexpage = stdnse.get_script_args("http-screenshot.indexpage") or "index.html"
 		
 	-- Screenshots will be called screenshot-namp-<IP>:<port>.<format>
-    local filename = "screenshot-nmap-" .. host.ip .. "_" .. port.number .. "." .. format
+    local filename = "screenshot-nmap-" .. target .. "_" .. port.number .. "." .. format
 	
 	-- Execute the shell command wkhtmltoimage <url> <filename>
-	stdnse.print_verbose("http-screenshot.nse: Capturing screenshot for %s",prefix .. "://" .. host.ip .. ":" .. port.number)
-	local cmd = "wkhtmltoimage -n --format " .. format .. " --quality " .. quality .. " " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
+	stdnse.print_verbose("http-screenshot.nse: Capturing screenshot for %s",prefix .. "://" .. target .. ":" .. port.number)
+	local cmd = "wkhtmltoimage -n --format " .. format .. " --quality " .. quality .. " " .. prefix .. "://" .. target .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
 	
 	local ret = os.execute(cmd)
 
