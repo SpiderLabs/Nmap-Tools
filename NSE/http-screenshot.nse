@@ -32,6 +32,11 @@ local stdnse = require "stdnse"
 
 portrule = shortport.http
 
+postrule = function(host) 
+	local cmd = "gnome-screenshot -w -f /tmp/screenshot-nmap-scan-`date +%Y-%m-%d-%H:%M:%S`.png"
+	os.execute(cmd)
+end
+
 action = function(host, port)
 	-- Check to see if ssl is enabled, if it is, this will be set to "ssl"
 	local ssl = port.version.service_tunnel
@@ -48,7 +53,8 @@ action = function(host, port)
 	end
 
 	-- Execute the shell command wkhtmltoimage-i386 <url> <filename>
-	local cmd = "wkhtmltoimage-i386 -n " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
+	-- deprecated local cmd = "wkhtmltoimage-i386 -n " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
+	local cmd = "wkhtmltoimage -n " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
 	
 	local ret = os.execute(cmd)
 
