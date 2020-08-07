@@ -1,3 +1,5 @@
+:warning: *NOTE: This tool is no longer under active maintenance.*
+
 Nmap-Tools
 ==========
 
