@@ -30,6 +30,9 @@ local shortport = require "shortport"
 
 local stdnse = require "stdnse"
 
+-- Added HTTP to detect response code to abort on 401
+local http = require "http"
+
 portrule = shortport.http
 
 action = function(host, port)
@@ -46,6 +49,13 @@ action = function(host, port)
 	if ssl == "ssl" then
 		prefix = "https"	
 	end
+
+        local answer = http.get(host, port, "/", { bypass_cache = true })
+
+        if answer.status == 401 then
+                result = "Page requires authentication (401). Aborting Script"
+                return stdnse.format_output(true,  result)
+        end
 
 	-- Execute the shell command wkhtmltoimage-i386 <url> <filename>
 	local cmd = "wkhtmltoimage-i386 -n " .. prefix .. "://" .. host.ip .. ":" .. port.number .. " " .. filename .. " 2> /dev/null   >/dev/null"
